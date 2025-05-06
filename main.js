@@ -78,7 +78,7 @@ client.on("messageCreate", message => {
 						return webhook
 							.execute({
 								avatarURL: message.member.avatarURL(),
-								username: message.member.nick,
+								username: message.member.nick ?? message.author.globalName,
 								content
 							})
 							.catch(console.error)
@@ -93,7 +93,7 @@ client.on("messageCreate", message => {
 						webhook
 							.execute({
 								avatarURL: message.member.avatarURL(),
-								username: message.member.nick,
+								username: message.member.nick ?? message.author.globalName,
 								content
 							})
 							.catch(console.error)
