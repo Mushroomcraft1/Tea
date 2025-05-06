@@ -11,5 +11,8 @@
     "url": "tea"
   },
   "author": "Mushroomcraft",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "oceanic.js": "^1.12.0"
+  }
 }
