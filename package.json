@@ -1,0 +1,15 @@
+{
+  "name": "tea",
+  "version": "1.0.0",
+  "description": "British English Only",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "tea"
+  },
+  "author": "Mushroomcraft",
+  "license": "ISC"
+}
