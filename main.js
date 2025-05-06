@@ -51,7 +51,10 @@ client.on("ready", async () => {
 	console.log("Ready as", client.user.tag)
 })
 
-client.on("messageCreate", message => {
+client.on("messageCreate", fix)
+client.on("messageUpdate", fix)
+
+function fix(message) {
 	if (message.author.bot) return
 
 	let content = message.content
@@ -66,7 +69,7 @@ client.on("messageCreate", message => {
 	}
 
 	if (changed) {
-		// client.rest.channels.createMessage(message.channelID, { content })
+		// client.rest.channels.createMessage(message.channelID, { content, messageReference: message.messageReference, })
 
 		message.channel
 			.getWebhooks()
@@ -79,6 +82,7 @@ client.on("messageCreate", message => {
 							.execute({
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
+								messageReference: message.messageReference,
 								content
 							})
 							.catch(console.error)
@@ -94,6 +98,7 @@ client.on("messageCreate", message => {
 							.execute({
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
+								messageReference: message.messageReference,
 								content
 							})
 							.catch(console.error)
@@ -101,7 +106,7 @@ client.on("messageCreate", message => {
 			})
 			.catch(console.error)
 	}
-})
+}
 
 // if you do not add a listener for the error event, any errors will cause an UncaughtError to be thrown,
 // and your process may be killed as a result.
