@@ -1,5 +1,5 @@
 const config = require("./config.json")
-const { Client } = require("oceanic.js")
+const { Client, TextChannel } = require("oceanic.js")
 
 const translations = require("./translations.json")
 const expressions = require("./expressions.json")
@@ -54,8 +54,17 @@ client.on("ready", async () => {
 client.on("messageCreate", fix)
 client.on("messageUpdate", fix)
 
+
+/**
+ * @param {import("oceanic.js").Message} message 
+*/
 function fix(message) {
 	if (message.author.bot) return
+	
+	let channel = message.channel, threadID
+
+	if (!(channel instanceof TextChannel)) channel = message.channel.parent, threadID = message.channel.id
+	if (!channel) return
 
 	let content = message.content
 
@@ -71,7 +80,8 @@ function fix(message) {
 	if (changed) {
 		// client.rest.channels.createMessage(message.channelID, { content, messageReference: message.messageReference, })
 
-		message.channel
+
+		channel
 			.getWebhooks()
 			.then(arr => {
 				for (const webhook of arr) {
@@ -82,14 +92,14 @@ function fix(message) {
 							.execute({
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
-								messageReference: message.messageReference,
+								threadID,
 								content
 							})
 							.catch(console.error)
 					}
 				}
 
-				message.channel
+				channel
 					.createWebhook({
 						name: "Corrector"
 					})
@@ -98,7 +108,7 @@ function fix(message) {
 							.execute({
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
-								messageReference: message.messageReference,
+								threadID,
 								content
 							})
 							.catch(console.error)
