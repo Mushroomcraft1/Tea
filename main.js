@@ -1,5 +1,5 @@
 const config = require("./config.json")
-const { Client, TextChannel } = require("oceanic.js")
+const { Client, ThreadChannel } = require("oceanic.js")
 
 const translations = require("./translations.json")
 const expressions = require("./expressions.json")
@@ -63,7 +63,7 @@ function fix(message) {
 	
 	let channel = message.channel, threadID
 
-	if (!(channel instanceof TextChannel)) channel = message.channel.parent, threadID = message.channel.id
+	if (channel instanceof ThreadChannel) channel = message.channel.parent, threadID = message.channel.id
 	if (!channel) return
 
 	let content = message.content
