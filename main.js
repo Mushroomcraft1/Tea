@@ -54,32 +54,68 @@ client.on("ready", async () => {
 client.on("messageCreate", fix)
 client.on("messageUpdate", fix)
 
-
 /**
- * @param {import("oceanic.js").Message} message 
-*/
+ * @param {import("oceanic.js").Message} message
+ */
 function fix(message) {
 	if (message.author.bot) return
-	
-	let channel = message.channel, threadID
 
-	if (channel instanceof ThreadChannel) channel = message.channel.parent, threadID = message.channel.id
+	let channel = message.channel,
+		threadID
+
+	if (channel instanceof ThreadChannel) (channel = message.channel.parent), (threadID = message.channel.id)
 	if (!channel) return
 
 	let content = message.content
+	let embeds = []
 
 	let changed = false
+	let dontDelete = message.attachments.size > 0 || message.content.length > 1500
+
+	if (dontDelete) {
+		let content = ""
+
+		for (const { regex, translation } of regexps) {
+			if (message.content.match(regex)) {
+				content += `**\\*${translation}**\n`.slice(0, 2000)
+			}
+		}
+
+		client.rest.channels.createMessage(message.channelID, { content, messageReference: { messageID: message.id } }).catch(console.error)
+		return
+	}
 
 	for (const { regex, translation } of regexps) {
-		content = content.replaceAll(regex, (...arr) => {
-			changed = true
-			return "**" + translation + "**"
-		})
+		content = content
+			.replaceAll(regex, (...arr) => {
+				changed = true
+				return `**${translation}**`
+			})
+			.slice(0, 2000)
 	}
 
 	if (changed) {
 		// client.rest.channels.createMessage(message.channelID, { content, messageReference: message.messageReference, })
 
+		if (message.referencedMessage) {
+			const reply = message.referencedMessage
+			let description = reply.content.slice(0, 50)
+
+			if (reply.content.length == 0) description = "*Attachment*"
+			if (reply.content.length > 50) description += "..."
+
+			description += `\n\n[Jump to message](${reply.jumpLink})`
+
+			embeds.push({
+				author: {
+					name: "Replying to " + reply.author.username,
+					iconURL: reply.author.avatarURL(),
+					url: reply.jumpLink
+				},
+				description,
+				color: 0xaaaaff
+			})
+		}
 
 		channel
 			.getWebhooks()
@@ -93,7 +129,8 @@ function fix(message) {
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
 								threadID,
-								content
+								content,
+								embeds
 							})
 							.catch(console.error)
 					}
@@ -109,7 +146,8 @@ function fix(message) {
 								avatarURL: message.member.avatarURL(),
 								username: message.member.nick ?? message.author.globalName,
 								threadID,
-								content
+								content,
+								embeds
 							})
 							.catch(console.error)
 					})
